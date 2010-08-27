@@ -1,7 +1,7 @@
+require "notify/notifiers"
 module Notify
-  require "notify/notifiers"
   def self.default_notifier
-    @@default_notifier ||= Notifiers.new
+    @default_notifier ||= Notifiers.new
   end
 
   def self.notify(title, message, option ={})
@@ -12,6 +12,4 @@ module Notify
     Notifiers.new *opts
   end
 end
-
-
 
