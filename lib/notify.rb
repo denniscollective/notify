@@ -1,25 +1,17 @@
-unless defined? __DIR__
-  __DIR__ = File.dirname(__FILE__)
-end
-
-if ENV['NOTIFY']
-  begin
-    require File.join(__DIR__, "notify/#{ENV['NOTIFY']}")
-  rescue LoadError
+module Notify
+  require "notify/notifiers"
+  def self.default_notifier
+    @@default_notifier ||= Notifiers.new
   end
-else
-  unless defined? Notify
-    Dir[File.join(__DIR__, "notify/*.rb")].each do |filename|
-      break if defined? Notify
-      require filename
-    end
+
+  def self.notify(title, message, option ={})
+    default_notifier.notify title, message, option
+  end
+
+  def self.new *opts
+    Notifiers.new *opts
   end
 end
 
-unless defined? Notify
-  module Notify
-    def self.notify(title, message, option ={})
-      # do nothing
-    end
-  end
-end
+
+
