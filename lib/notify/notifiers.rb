@@ -8,14 +8,25 @@ module Notify
     Dir[File.join(__DIR__, "notifiers/*.rb")].each do |filename|
       require filename
     end
+
     def self.available
-      self.constants.map {|c| self.const_get(c)}.select{|c| c.is_a?(Class)}
+      @available_notifiers ||= self.available_notifiers!
     end
 
-    @@default_notifier_class ||= (ENV['NOTIFY'] || self.available.first)
+    def self.available_notifiers!
+      self.constants.map{|c| self.const_get(c)}.select{|c| c.is_a?(Class)}#.sort{ |c1,c2| c1.load_priority <=> c2.load_priority}
+    end
+
+    def self.default_notifier_class
+      @default_notifier_class ||= (Notifiers.const_get(ENV['NOTIFY']) || self.available.first)
+    end
+
+    def default_notifier_class= klass
+      @default_notifier_class = klass
+    end
 
     def self.new *opts
-      klass = @@default_notifier_class
+      klass = default_notifier_class
       klass.new
     end
   end
