@@ -9,25 +9,25 @@ module Notify
       require filename
     end
 
-    def self.available
-      @available_notifiers ||= self.available_notifiers!
-    end
-
     def self.available_notifiers!
       self.constants.map{|c| self.const_get(c)}.select{|c| c.is_a?(Class)}#.sort{ |c1,c2| c1.load_priority <=> c2.load_priority}
     end
 
-    def self.default_notifier_class
-      @default_notifier_class ||= (Notifiers.const_get(ENV['NOTIFY']) || self.available.first)
+    def self.available
+      @available_notifiers ||= self.available_notifiers!
     end
 
-    def default_notifier_class= klass
-      @default_notifier_class = klass
+    def self.default_class= klass
+      @default_class = Notifiers.const_get(klass)
+      @default_notifer = @default_class.new
     end
 
-    def self.new *opts
-      klass = default_notifier_class
-      klass.new
+    def self.default_class
+      @default_class ||= (self.const_get(ENV['NOTIFY']) || self.available.first)
+    end
+
+    def self.default *opts
+      @default ||= self.default_class.new *opts
     end
   end
 end
